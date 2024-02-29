@@ -1,5 +1,5 @@
 import actionTypes from "../actions/actionTypes";
-
+import {formatDate} from "../../components/utils/timeUtils"
 const initState = {
   Thermometer: [],
   Hygrometer: [],
@@ -22,7 +22,7 @@ const deviceReducer = (state = initState, action) => {
   let newCurrentThermometer = JSON.parse(JSON.stringify(state.currentThermometer));
   let newCurrentHygrometer = state.currentHygrometer;
   let newCurrentLux = state.currentLux;
-
+  let created_at=formatDate(new Date());
   switch (action.type) {
     case actionTypes.FETCH_DEVICES:
       return {
@@ -43,10 +43,10 @@ const deviceReducer = (state = initState, action) => {
             if (dt.name === data.sensor.name) {
               if (dt.value) {
                 dt.value.push(data.value);
-                dt.created_at.push(action.created_at);
+                dt.created_at.push(created_at);
               } else {
                 dt.value = [data.value];
-                dt.created_at = [action.created_at];
+                dt.created_at = [created_at];
               }
             }
             if (dt.id === newCurrentThermometer.id) {
@@ -62,10 +62,10 @@ const deviceReducer = (state = initState, action) => {
             if (dt.name === data.sensor.name) {
               if (dt.value) {
                 dt.value.push(data.value);
-                dt.created_at.push(action.created_at);
+                dt.created_at.push(created_at);
               } else {
                 dt.value = [data.value];
-                dt.created_at = [action.created_at];
+                dt.created_at = [created_at];
               }
             }
             if (dt.id === newCurrentHygrometer.id) {
@@ -80,10 +80,10 @@ const deviceReducer = (state = initState, action) => {
             if (dt.name === data.sensor.name) {
               if (dt.value) {
                 dt.value.push(data.value);
-                dt.created_at.push(action.created_at);
+                dt.created_at.push(created_at);
               } else {
                 dt.value = [data.value];
-                dt.created_at = [action.created_at];
+                dt.created_at = [created_at];
               }
             }
             if (dt.id === newCurrentLux.id) {
