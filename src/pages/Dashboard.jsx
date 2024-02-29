@@ -10,18 +10,14 @@ const Dashboard = () => {
     const [chartContainerHeight, setChartContainerHeight] = useState(0);
     const [chartWidth, setChartWidth] = useState('70%');
     const upperSectionRef = useRef(null);
-    const [data, setData] = useState({
-        hot: Math.floor(Math.random() * 101),
-        water: Math.floor(Math.random() * 101),
-        lux: Math.floor(Math.random() * 101)
-    });
+
     useEffect(() => {
         const calculateChartContainerHeight = () => {
             const windowHeight = window.innerHeight;
             const upperSectionHeight = upperSectionRef.current.clientHeight;
             const headerHeight = document.querySelector('header').clientHeight;
             const padding = 40;
-            const chartContainerHeight = windowHeight - upperSectionHeight - padding-headerHeight;
+            const chartContainerHeight = windowHeight - upperSectionHeight - padding - headerHeight;
 
             setChartContainerHeight(chartContainerHeight);
         };
@@ -41,31 +37,19 @@ const Dashboard = () => {
         };
     }, []);
 
-    useEffect(() => {
-        const intervalId = setInterval(() => {
-            setData({
-                hot: Math.floor(Math.random() * 101),
-                water: Math.floor(Math.random() * 101),
-                lux: Math.floor(Math.random() * 101)
-            });
-        }, 1000);
-
-        return () => clearInterval(intervalId);
-    }, []);
-
     return <div className='p-[10px]'>
         <div ref={upperSectionRef} className='h-[30vh] shadow-xl rounded-[20px] overflow-hidden flex bg-white'>
-            <Thermometer data={data}></Thermometer>
-            <Hygrometer data={data}></Hygrometer>
-            <LuThermometerSunCom data={data}></LuThermometerSunCom>
+            <Thermometer ></Thermometer>
+            <Hygrometer ></Hygrometer>
+            <LuThermometerSunCom ></LuThermometerSunCom>
         </div>
         <div style={{ height: `${chartContainerHeight}px` }} className=' shadow-xl rounded-[20px] bg-white mt-[20px] p-[10px] flex gap-[10px]'>
             <div className='h-full' style={{ width: chartWidth }}>
-                <Chart data2={data}></Chart>
+                <Chart ></Chart>
             </div>
             <div className='flex flex-col justify-center items-center flex-auto'>
-                <FanControl></FanControl>
-                <LightControl></LightControl>
+                <FanControl ></FanControl>
+                <LightControl ></LightControl>
             </div>
         </div>
     </div>

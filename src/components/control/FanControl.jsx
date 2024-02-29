@@ -2,6 +2,10 @@ import { PiFanDuotone } from "react-icons/pi";
 import Switch from "react-switch";
 import { useState, useEffect } from "react";
 import styled from "styled-components";
+import { useSelector, useDispatch } from "react-redux";
+import { Select } from "antd";
+import { change_current_device } from "../../store/actions/deviceAction";
+import DeviceApi from "../../api/DeviceApi";
 
 const StyledFan = styled('div')`
 .rotate {
@@ -19,12 +23,28 @@ const StyledFan = styled('div')`
 `
 
 const FanControl = () => {
-    const [activeStatus, setActiveStatus] = useState(false);
+    const { Fan, currentFan } = useSelector(state => state.device);
+    const dispatch = useDispatch();
+    const [activeStatus, setActiveStatus] = useState(currentFan?.status === 1);
     const [rotation, setRotation] = useState(0);
 
-    function handleChange(checked) {
-        setActiveStatus(checked);
+    async function handleChange(checked) {
+        try {
+            const res = await DeviceApi.changeDeviceStatus({ ...currentFan, status: checked ? 1 : 0 });
+            dispatch(change_current_device(({ currentFan: res }),
+            {Fan:Fan.map(item => {
+                if (item.id === res.id) return res;
+                else return item;
+            })}))
+        } catch (e) {
+            console.log(e);
+        }
     }
+
+
+    useEffect(() => {
+        setActiveStatus(currentFan?.status === 1);
+    }, [currentFan?.status])
 
     useEffect(() => {
         let intervalId;
@@ -42,7 +62,13 @@ const FanControl = () => {
         };
     }, [activeStatus]);
 
-    return <StyledFan className="flex items-center justify-center gap-[60px] flex-1 border-b-[1px] border-b-[#a7a7a7]">
+    return <StyledFan className="flex items-center justify-center gap-[60px] flex-1 border-b-[1px] border-b-[#a7a7a7] relative">
+        <div className="absolute w-[40%] top-[15px] left-[0px]">
+            <Select options={Fan.map(item => ({ label: item.name, value: item.id }))} value={currentFan?.id} className="w-full"
+                onChange={(e) => {
+                    dispatch(change_current_device(({currentFan:Fan.find(item => item.id === e)})))
+                }}></Select>
+        </div>
         <div>
             <p className="text-black text-center font-[500] text-[26px]">Fan Controller</p>
         </div>

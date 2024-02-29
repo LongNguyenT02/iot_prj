@@ -5,8 +5,9 @@ import {
     UserOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
+import { useLayoutEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 const { Header } = Layout;
 function getItem(label, key, icon, children) {
     return {
@@ -32,9 +33,13 @@ const Public = () => {
         const selectedItem = flattenArr.find((item) => item.key === e.key);
         if (selectedItem) {
             navigate(e.key);
+            setSelectedKeys([e.key])
+
         }
     };
-
+    const location = useLocation().pathname;
+    const [selectedKeys, setSelectedKeys] = useState([location]);
+   
     return (
         <Layout style={{
             minHeight: '100vh',
@@ -50,7 +55,7 @@ const Public = () => {
                 <Menu
                     theme="dark"
                     mode="horizontal"
-                    defaultSelectedKeys={['/']}
+                    selectedKeys={selectedKeys}
                     items={items}
                     style={{
                         flex: 1,

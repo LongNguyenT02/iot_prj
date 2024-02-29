@@ -1,101 +1,111 @@
 import { DatePicker, Button, Table } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { formatDate } from "../components/utils/timeUtils";
+import LogApi from "../api/LogApi";
+import { useSelector } from 'react-redux';
+
 const { RangePicker } = DatePicker;
 
 const StatusLog = () => {
 
     const [page, setPage] = useState(1);
     const [paginationSize, setPaginationSize] = useState(10);
-    const [totalItemData, setTotalItemData] = useState(4);
+    const [totalItemData, setTotalItemData] = useState(0);
 
-    let pageItem =
-        (page - 1) * paginationSize + 1 > totalItemData ? page - 1 : page;
+    const [sortDirections, setSortDirections] = useState("asc")
+    const [filterStatus, setFilterStatus] = useState([]);
+    const [filterSensor, setFilterSensor] = useState([]);
+    const {Light,Fan} =useSelector(state=>state.device);
 
-    const columns = [
-        {
-            title: "STT",
-            align: "center",
-            width: "50px",
-            render: (text, record, index) => {
-                return (pageItem - 1) * paginationSize + index + 1;
+    const [data, setData] = useState([]);
+    const [columns, setColumns] = useState([]);
+
+    const fetchData = async () => {
+        try {
+            const res = await LogApi.statusLog({
+                page:page-1,
+                size: paginationSize,
+                direction: sortDirections,
+                filterStatus,
+                filterSensor
+            })
+            setData(res.content);
+            setTotalItemData(res.count);
+        }
+        catch (e) {
+            console.log(e);
+        }
+    }
+
+    useEffect(() => {
+        fetchData().then();
+    }, [page, paginationSize, sortDirections,filterSensor,filterStatus])
+
+    useEffect(() => {
+        let pageItem =
+            (page - 1) * paginationSize + 1 > totalItemData ? page - 1 : page;
+
+        const dataColumns = [
+            {
+                title: "STT",
+                align: "center",
+                width: "50px",
+                render: (text, record, index) => {
+                    return (pageItem - 1) * paginationSize + index + 1;
+                },
             },
-        },
-        {
-            title: 'Device',
-            dataIndex: 'Fan',
-            filters: [
-                {
-                  text: 'On',
-                  value: 'On',
-                },
-                {
-                  text: 'Off',
-                  value: 'Off',
-                },
-              ],
-              onFilter: (value, record) => record.Fan === value,
-        },
-        {
-            title: 'Status',
-            dataIndex: 'Light',
-            filters: [
-                {
-                  text: 'On',
-                  value: 'On',
-                },
-                {
-                  text: 'Off',
-                  value: 'Off',
-                },
-              ],
-              onFilter: (value, record) => record.Fan === value,
-        },
-        {
-            title: 'Time',
-            dataIndex: 'Time',
-            sorter: (a, b) => {
-                if (a.time < b.time) {
-                  return -1;
+            {
+                title: 'Device',
+                filters: [
+                    ...Light.map(dv=>({text:dv.name,value:dv.name})),
+                    ...Fan.map(dv=>({text:dv.name,value:dv.name})),
+                ],
+                onFilter: (value, record) => record.Fan === value,
+                render: (_, record) => {
+                    return <p>{record.sensor.name}</p>
                 }
-                if (a.time > b.time) {
-                  return 1;
+            },
+            {
+                title: 'Status',
+                dataIndex: 'status',
+                filters: [
+                    {
+                        text: 'On',
+                        value: '1',
+                    },
+                    {
+                        text: 'Off',
+                        value: '0',
+                    },
+                ],
+                onFilter: (value, record) => record.status === value,
+            },
+            {
+                title: 'Time',
+                dataIndex: 'createdAt',
+                sorter: (a, b) => {
+                    return;
+                },
+                sortDirections: ["ascend", "descend", "ascend"],
+                render:(_,record)=>{
+                    return formatDate(new Date(record.createdAt));
                 }
-                return 0;
-              },
-              sortDirections: ["ascend", "descend", "ascend"],
-        },
-    ];
-
-    const data = [
-        {
-            key: '1',
-            Fan: 'Fan01',
-            Light: "Off",
-            Time: formatDate(new Date())
-        },
-        {
-            key: '2',
-            Fan: 'Fan01',
-            Light: "Off",
-            Time: formatDate(new Date())
-        },
-        {
-            key: '3',
-            Fan: 'Light02',
-            Light: "On",
-            Time: formatDate(new Date())
-        },
-        {
-            key: '4',
-            Fan: 'Light02',
-            Light: "On",
-            Time: formatDate(new Date())
-        },
-    ];
-
+            },
+        ];
+        setColumns(dataColumns);
+    }, [data,totalItemData,page,paginationSize,Light,Fan,filterSensor,filterStatus])
+    
     const onChange = (pagination, filters, sorter, extra) => {
-        console.log('params', pagination, filters, sorter, extra);
+       if(filters?.status){
+        setFilterStatus(filters.status.join(","));
+       }else{
+        setFilterStatus("");
+       }
+       if(filters['1']){
+        setFilterSensor(filters['1'].join(","));
+       }else{
+        setFilterSensor("");    
+       }
     };
 
     return <div className='h-[100vh] p-[10px] bg-white'>
@@ -104,7 +114,30 @@ const StatusLog = () => {
             <Button type="primary" className='bg-[#1677ff]'>Search</Button>
         </div>
         <div className='mt-[10px]'>
-            <Table columns={columns} dataSource={data} onChange={onChange} />;
+            <Table columns={columns} dataSource={data}
+                onChange={onChange}
+                rowKey={() => {
+                    let result = "";
+                    const characters =
+                        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+                    for (let i = 0; i < 50; i++) {
+                        const randomIndex = Math.floor(Math.random() * characters.length);
+                        result += characters?.charAt(randomIndex);
+                    }
+                    return result;
+                }}
+                pagination={{
+                    onChange(current, pageSize) {
+                        setPage(current);
+                        setPaginationSize(pageSize);
+                    },
+                    defaultPageSize: paginationSize,
+                    showSizeChanger: true,
+                    pageSizeOptions: ["5", "10", "20", "30"],
+                    total: totalItemData,
+                }}
+            />;
         </div>
     </div>
 }
