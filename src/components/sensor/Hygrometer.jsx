@@ -10,11 +10,11 @@ const Hygrometer = () => {
             <Select options={Hygrometer.map(item => ({ label: item.name, value: item.id }))} value={currentHygrometer?.id} className="w-full"></Select>
         </div>
         <div className="text-black text-center font-[500] text-[26px]">
-            <p>{currentHygrometer.value[currentHygrometer.value.length - 1]}%</p>
+            <p>{currentHygrometer?.value?currentHygrometer?.value[currentHygrometer?.value?.length - 1]:0}%</p>
             <p>Hygrometer</p>
         </div>
         <div className="h-full py-[20px]">
-            <MeasuringTool lowColor="#0876BF" heightColor="#004877" maxValue={100} currentValue={currentHygrometer.value[currentHygrometer.value.length - 1]}></MeasuringTool>
+            <MeasuringTool lowColor="#0876BF" heightColor="#004877" maxValue={100} currentValue={currentHygrometer?.value?currentHygrometer?.value[currentHygrometer?.value?.length - 1]:0}></MeasuringTool>
         </div>
     </div>;
 }

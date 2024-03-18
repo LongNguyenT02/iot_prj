@@ -10,7 +10,7 @@ const LuThermometerSunCom = () => {
             <Select options={Lux.map(item => ({ label: item.name, value: item.id }))} value={currentLux?.id} className="w-full"></Select>
         </div>
         <div className="text-black text-center font-[500] text-[26px]">
-            <p>{currentLux.value[currentLux.value.length - 1]}lm</p>
+            <p>{currentLux?.value?currentLux?.value[currentLux?.value?.length - 1]:0}lm</p>
             <p>Lux meter</p>
         </div>
         <div className="">

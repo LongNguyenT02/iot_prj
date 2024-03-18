@@ -11,11 +11,11 @@ const Thermometer = () => {
             <Select options={Thermometer.map(item => ({ label: item.name, value: item.id }))} value={currentThermometer?.id} className="w-full"></Select>
         </div>
         <div className="text-black text-center font-[500] text-[26px]">
-            <p>{currentThermometer.value[currentThermometer.value.length - 1]}<sup>o</sup>C</p>
+            <p>{currentThermometer?.value?currentThermometer?.value[currentThermometer?.value?.length - 1]:0}<sup>o</sup>C</p>
             <p>Thermometer</p>
         </div>
         <div className="h-full py-[20px]">
-            <MeasuringTool lowColor="#ff2100" heightColor="#ba1800" maxValue={100} currentValue={currentThermometer.value[currentThermometer.value.length - 1]}></MeasuringTool>
+            <MeasuringTool lowColor="#ff2100" heightColor="#ba1800" maxValue={100} currentValue={currentThermometer?.value?currentThermometer?.value[currentThermometer?.value?.length - 1]:0}></MeasuringTool>
         </div>
     </div>;
 }

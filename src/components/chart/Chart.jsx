@@ -11,6 +11,7 @@ import {
 import { Line } from 'react-chartjs-2';
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import zoomPlugin from 'chartjs-plugin-zoom';
 
 ChartJS.register(
   CategoryScale,
@@ -19,7 +20,8 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  zoomPlugin
 );
 
 const Chart = () => {
@@ -33,12 +35,27 @@ const Chart = () => {
         display: true,
         text: 'Chart.js Line Chart',
       },
+      zoom: {
+        pan: {
+          enabled: true,
+          mode: 'x'
+        },
+        zoom: {
+          pinch: {
+            enabled: true       
+          },
+          wheel: {
+            enabled: true     
+          },
+          mode: 'x',
+        }
+      }
     },
   };
 
   const { currentThermometer, currentHygrometer, currentLux } = useSelector(state => state.device);
   const [data, setData] = useState({
-    labels:currentThermometer?.created_at||[],
+    labels: currentThermometer?.created_at || [],
     datasets: [
       {
         label: 'Thermometer',
@@ -63,7 +80,7 @@ const Chart = () => {
 
   useEffect(() => {
     setData({
-      labels:currentThermometer?.created_at||[],
+      labels: currentThermometer?.created_at || [],
       datasets: [
         {
           label: 'Thermometer',
@@ -86,7 +103,6 @@ const Chart = () => {
       ],
     })
   }, [currentHygrometer, currentLux, currentThermometer])
-
 
   return <Line style={{ width: '70%' }} options={options} data={data} />
 }
