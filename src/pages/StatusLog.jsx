@@ -114,12 +114,12 @@ const StatusLog = () => {
         setSortDirections(sorter.order === 'ascend' ? "ASC" : "DESC");
     };
 
-    return <div className='h-[100vh] p-[10px] bg-white'>
-        <div className='flex gap-[10px]'>
+    return <div className=' p-[10px] bg-white'>
+        <div className='flex gap-[10px] h-[40px] items-center'>
             <RangePicker onChange={(e, dateString) => {
                 setSearchDate(dateString)
-            }} />
-            <Button type="primary" className='bg-[#1677ff]' onClick={() => { fetchData().then(); }}>Search</Button>
+            }}  className='h-full'/>
+            <Button type="primary" className='bg-[#1677ff] h-full' onClick={() => { fetchData().then(); }}>Search</Button>
         </div>
         <div className='mt-[10px]'>
             <Table columns={columns} dataSource={data}
@@ -145,7 +145,7 @@ const StatusLog = () => {
                     pageSizeOptions: ["5", "10", "20", "30"],
                     total: totalItemData,
                 }}
-            />;
+            />
         </div>
     </div>
 }

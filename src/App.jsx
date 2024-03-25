@@ -6,10 +6,10 @@ import StatusLog from "./pages/StatusLog";
 import ProfilePage from "./pages/ProfilePage";
 
 import DeviceApi from './api/DeviceApi';
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { fetch_devices, update_device_value } from "./store/actions/deviceAction";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import SockJS from "sockjs-client";
 import { over } from "stompjs";
@@ -17,7 +17,6 @@ import { over } from "stompjs";
 let stompClient = null;
 function App() {
   const dispatch = useDispatch();
-  const { Thermometer, Hygrometer, Lux } = useSelector(state => state.device);
 
   const fetchDevices = async () => {
     try {
@@ -48,7 +47,7 @@ function App() {
       }));
 
     } catch (err) {
-      // Xử lý lỗi nếu cần
+      console.log(err);
     }
   };
 
