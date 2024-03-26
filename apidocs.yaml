@@ -1,0 +1,218 @@
+rrrrrrrrrrrrrrr33333333333333333333333333333rrrrrrrrtttttt: 3.0.3
+info:
+  title: Nguyen Thanh Long - B20DCPT119
+  version: 1.0.11
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: logs
+    description: Show logs about the sensor's activity and value
+  - name: device
+    description: Get device and change device's status
+paths:
+  /logs/getStatusLog:
+    get:
+      tags:
+        - logs
+      summary: Get device's status log
+      parameters:
+        - name: page
+          in: query
+          description: current page
+          required: true
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          description: page size
+          required: true
+          schema:
+            type: integer
+            default: 10
+        - name: sort
+          in: query
+          description: sort field
+          required: true
+          schema:
+            type: string
+            default: available
+        - name: direction
+          in: query
+          description: sort direction
+          required: true
+          schema:
+            type: string
+            default: available
+        - name: filterStatus
+          in: query
+          description: list of status which be filtered by
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filterSensor
+          in: query
+          description: list of sensor name which be filtered by
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+        - name: startDate
+          in: query
+          description: start date to filter
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          description: end date to filter
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginationResponse'
+
+  /logs/getValueLog:
+    get:
+      tags:
+        - logs
+      summary: Get device's activity log
+      parameters:
+        - name: page
+          in: query
+          description: current page
+          required: true
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          description: page size
+          required: true
+          schema:
+            type: integer
+            default: 10
+        - name: sort
+          in: query
+          description: sort field
+          required: true
+          schema:
+            type: string
+            default: available
+        - name: direction
+          in: query
+          description: sort direction
+          required: true
+          schema:
+            type: string
+            default: available
+        - name: filterSensor
+          in: query
+          description: list of sensor name which be filtered by
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+        - name: startDate
+          in: query
+          description: start date to filter
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          description: end date to filter
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginationResponse'
+
+  /device/getAllDevices:
+    get:
+      tags:
+        - device
+      summary: Get all devices
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeviceDTO'
+  /device/changeDeviceStatus:
+    put:
+      tags:
+        - device
+      summary: Change status of device
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceDTO'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeviceDTO'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  httpStatus:
+                    type: string
+
+components:
+  schemas:
+    PaginationResponse:
+      type: object
+      properties:
+        perPage:
+          type: integer
+          format: int32
+        count:
+          type: integer
+        page:
+          type: integer
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeviceDTO'
+
+    DeviceDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        status:
+          type: integer
+        type:
+          type: string
+          enum: [Thermometer, Hygrometer, Lux, Light, Fan]
+      xml:
+        name: '##default'

@@ -2,6 +2,7 @@ import { DatePicker, Button, Table, Select } from 'antd';
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
+import LogApi from '../api/LogApi';
 
 const { RangePicker } = DatePicker;
 
@@ -42,37 +43,66 @@ const SensorLog = () => {
     const [paginationSize, setPaginationSize] = useState(10);
     const [totalItemData, setTotalItemData] = useState(4);
     const [sortDirections, setSortDirections] = useState("asc")
+    const [filterSensor, setFilterSensor] = useState([]);
     const [sortField, setSortField] = useState("")
-    const [selectedDevice, setSelectedDevice] = useState([JSON.stringify({ id: "", name: "All" })]);
+    // const [selectedDevice, setSelectedDevice] = useState([JSON.stringify({ id: "", name: "All" })]);
     const [dataColumn, setDataColumn] = useState([]);
+    const [searchDate, setSearchDate] = useState([]);
 
     const { Lux, Hygrometer, Thermometer } = useSelector(state => state.device);
+
+    const fetchData = async () => {
+        try {
+            let startDate = searchDate[0] ? searchDate[0] : "";
+            let endDate = searchDate[1] ? searchDate[1] : "";
+
+            const res = await LogApi.valueLog({
+                page,
+                size: paginationSize,
+                sortField,
+                direction: sortDirections,
+                filterSensor,
+                startDate,
+                endDate
+            })
+        }
+        catch (err) {
+
+        }
+        finally {
+
+        }
+    }
+
+    useEffect(() => {
+        fetchData().then();
+    }, [page, paginationSize, sortDirections, sortField])
 
     useEffect(() => {
         let pageItem =
             (page - 1) * paginationSize + 1 > totalItemData ? page - 1 : page;
-        let deviceColumn = []
-        if (selectedDevice.length === 0 || JSON.parse(selectedDevice[0]).name === 'All') {
-            deviceColumn = [...Lux, ...Hygrometer, ...Thermometer].map(dv => ({
-                title: dv.name,
-                dataIndex: dv.id,
-                sortDirections: ["ascend", "descend", "ascend"],
-                sorter: (a, b) => {
-                    return;
-                },
-            }))
-        }
-        else deviceColumn = selectedDevice.map(device => {
-            const parseDevice = JSON.parse(device);
-            return {
-                title: parseDevice.name,
-                dataIndex: parseDevice.id,
-                sortDirections: ["ascend", "descend", "ascend"],
-                sorter: (a, b) => {
-                    return;
-                },
-            }
-        })
+        // let deviceColumn = []
+        // if (selectedDevice.length === 0 || JSON.parse(selectedDevice[0]).name === 'All') {
+        //     deviceColumn = [...Lux, ...Hygrometer, ...Thermometer].map(dv => ({
+        //         title: dv.name,
+        //         dataIndex: dv.id,
+        //         sortDirections: ["ascend", "descend", "ascend"],
+        //         sorter: (a, b) => {
+        //             return;
+        //         },
+        //     }))
+        // }
+        // else deviceColumn = selectedDevice.map(device => {
+        //     const parseDevice = JSON.parse(device);
+        //     return {
+        //         title: parseDevice.name,
+        //         dataIndex: parseDevice.id,
+        //         sortDirections: ["ascend", "descend", "ascend"],
+        //         sorter: (a, b) => {
+        //             return;
+        //         },
+        //     }
+        // })
 
         const columns = [
             {
@@ -83,7 +113,22 @@ const SensorLog = () => {
                     return (pageItem - 1) * paginationSize + index + 1;
                 },
             },
-            ...deviceColumn,
+            {
+                title: "Device",
+                dataIndex: 'name',
+                filters: [...Lux, ...Hygrometer, ...Thermometer].map(dv => ({ text: dv.name, value: dv.name }))
+                ,
+                onFilter: (value, record) => record.sensor.name === value,
+            },
+            {
+                title: "Value",
+                dataIndex: 'value',
+                sortDirections: ["ascend", "descend", "ascend"],
+                sorter: (a, b) => {
+                    return;
+                },
+            },
+            // ...deviceColumn,
             {
                 title: 'Time',
                 dataIndex: 'Time',
@@ -100,12 +145,13 @@ const SensorLog = () => {
             },
         ];
         setDataColumn(columns)
-    }, [page, paginationSize, sortDirections, sortField, selectedDevice])
+    }, [page, paginationSize, sortDirections, sortField])
 
     const data = [
     ];
 
     const onChange = (pagination, filters, sorter, extra) => {
+        console.log(filters);
         setSortDirections(sorter.order === 'ascend' ? "ASC" : "DESC");
         setSortField(sorter.column.title);
     };
@@ -113,7 +159,7 @@ const SensorLog = () => {
     return <div className=' p-[10px] bg-white'>
         <StyleSensorLog>
             <div className='flex gap-[10px] items-center h-[40px]'>
-                <Select
+                {/* <Select
                     mode="multiple"
                     allowClear
                     style={{
@@ -140,8 +186,10 @@ const SensorLog = () => {
                     },
                     ...[...Lux, ...Hygrometer, ...Thermometer].map(dv => ({ label: dv.name, value: JSON.stringify({ id: dv.id, name: dv.name }) }))
                     ]}
-                />
-                <RangePicker className='h-full' />
+                /> */}
+                <RangePicker onChange={(e, dateString) => {
+                    setSearchDate(dateString)
+                }} className='h-full' />
                 <Button type="primary" className='bg-[#1677ff] h-full'>Search</Button>
             </div>
             <div className='mt-[10px]'>
